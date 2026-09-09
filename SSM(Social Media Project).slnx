@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/backend/" />
+  <Folder Name="/backend/src/">
+    <Project Path="SSM.API/SSM.API.csproj" />
+    <Project Path="SSM.Application/SSM.Application.csproj" />
+    <Project Path="SSM.Domain/SSM.Domain.csproj" />
+    <Project Path="SSM.Infrastructure/SSM.Infrastructure.csproj" />
+  </Folder>
+</Solution>
