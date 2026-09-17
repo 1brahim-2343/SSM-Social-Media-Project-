@@ -22,6 +22,14 @@ public class AppDbContext
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<PostLike> PostLikes => Set<PostLike>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<FriendRequest> FriendRequests
+    => Set<FriendRequest>();
+
+    public DbSet<Friendship> Friendships
+        => Set<Friendship>();
+
+    public DbSet<Notification> Notifications
+        => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
