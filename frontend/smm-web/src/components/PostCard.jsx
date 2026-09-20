@@ -16,9 +16,10 @@ import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { likePost, unlikePost } from "../api/postsApi";
+import { likePost, unlikePost } from "../features/posts/api/postsApi";
 
-import { API_ORIGIN } from "../../../config";
+import { API_ORIGIN } from "../config";
+
 
 import { useState } from "react";
 import CommentSection from "../features/comments/components/CommentSection";

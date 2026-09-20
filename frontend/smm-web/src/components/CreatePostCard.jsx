@@ -25,8 +25,8 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 
-import { createPost } from '../api/postsApi';
-import { useAuthStore } from '../../auth/store/authStore';
+import { createPost } from '../features/posts/api/postsApi';
+import { useAuthStore } from '../features/auth/store/authStore';
 
 export default function CreatePostCard() {
   const user = useAuthStore(
