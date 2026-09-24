@@ -30,7 +30,11 @@ public class AppDbContext
 
     public DbSet<Notification> Notifications
         => Set<Notification>();
+    public DbSet<Conversation> Conversations
+    => Set<Conversation>();
 
+    public DbSet<Message> Messages
+        => Set<Message>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

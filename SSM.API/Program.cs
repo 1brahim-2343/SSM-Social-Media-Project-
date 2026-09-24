@@ -1,4 +1,3 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +13,8 @@ using SMM.Infrastructure.Notifications;
 using SMM.Infrastructure.Persistence;
 using SSM.API.Controllers.Helpers;
 using SSM.Infrastructure.RealTime;
+using System.Text;
+using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,10 +23,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Controllers
 // =========================
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions
+            .Converters
+            .Add(new JsonStringEnumConverter());
+    }); ;
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
 
 
 // =========================

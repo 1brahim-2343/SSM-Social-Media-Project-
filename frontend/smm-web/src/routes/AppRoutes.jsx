@@ -14,6 +14,7 @@ import NotificationsPage from '../pages/NotificationsPage';
 import MainLayout from '../layouts/MainLayout';
 
 import ProtectedRoute from '../features/auth/components/ProtectedRoute';
+import MessagesPage from '../pages/MessagesPage';
 
 export default function AppRoutes() {
   return (
@@ -43,6 +44,10 @@ export default function AppRoutes() {
         <Route
           path="/friends"
           element={<FriendsPage />}
+        />
+        <Route
+          path="/messages"
+          element={<MessagesPage />}
         />
 
         <Route
