@@ -20,21 +20,27 @@ import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 
 import { useQuery } from "@tanstack/react-query";
 
-import { getPosts } from "../features/posts/api/postsApi";
+import { getPosts, getPostsBySearch } from "../features/posts/api/postsApi";
 import { useAuthStore } from "../features/auth/store/authStore";
 
 import CreatePostCard from "../components/CreatePostCard";
 import PostCard from "../components/PostCard";
 import NotificationsMenu from "../features/notifications/components/NotificationsMenu";
+import { useSearchParams } from "react-router-dom";
 
 export default function FeedPage() {
   const user = useAuthStore((state) => state.user);
 
+  const [searchParams] = useSearchParams();
+
+  const searchWord = searchParams.get("search") ?? " ";
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["posts"],
+    queryKey: ["posts", searchWord],
 
     queryFn: () =>
-      getPosts({
+      getPostsBySearch({
+        search: searchWord,
         page: 1,
         pageSize: 20,
       }),

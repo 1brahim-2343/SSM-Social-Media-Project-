@@ -14,6 +14,20 @@ export async function getPosts({
   return response.data;
 }
 
+export async function getPostsBySearch({search, page = 1, pageSize = 10}) {
+  const response = await api.get("/posts/search", {
+    params: {
+      search,
+      page,
+      pageSize,
+    }
+  });
+
+  return response.data;
+}
+
+
+
 export async function createPost({
   content,
   image,

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 import {
   AppBar,
@@ -14,169 +14,114 @@ import {
   Paper,
   Tooltip,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
-import ChatBubbleRoundedIcon from '@mui/icons-material/ChatBubbleRounded';
-import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
-import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
-import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
-import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
-import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
+import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
+import ChatBubbleRoundedIcon from "@mui/icons-material/ChatBubbleRounded";
+import NotificationsRoundedIcon from "@mui/icons-material/NotificationsRounded";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 
-import {
-  Outlet,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { useAuthStore } from '../features/auth/store/authStore';
+import { useAuthStore } from "../features/auth/store/authStore";
 
-import {
-  logout as logoutRequest,
-} from '../features/auth/api/authApi';
+import { logout as logoutRequest } from "../features/auth/api/authApi";
 
-import {
-  getUnreadCount,
-} from '../features/notifications/api/notificationsApi';
+import { getUnreadCount } from "../features/notifications/api/notificationsApi";
 
-import {
-  getMessageUnreadCount,
-} from '../features/messages/api/messagesApi';
+import { getMessageUnreadCount } from "../features/messages/api/messagesApi";
 
-import { API_ORIGIN } from '../config';
+import { API_ORIGIN } from "../config";
 
 export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
 
-  const [profileAnchorEl, setProfileAnchorEl] =
-    useState(null);
+  const [profileAnchorEl, setProfileAnchorEl] = useState(null);
 
-  const [search, setSearch] =
-    useState('');
+  const [search, setSearch] = useState("");
 
-  const user = useAuthStore(
-    (state) => state.user
-  );
+  const user = useAuthStore((state) => state.user);
 
-  const refreshToken = useAuthStore(
-    (state) => state.refreshToken
-  );
+  const refreshToken = useAuthStore((state) => state.refreshToken);
 
-  const logout = useAuthStore(
-    (state) => state.logout
-  );
+  const logout = useAuthStore((state) => state.logout);
 
-  const profileMenuOpen =
-    Boolean(profileAnchorEl);
+  const profileMenuOpen = Boolean(profileAnchorEl);
 
-  const notificationUnreadQuery =
-    useQuery({
-      queryKey: [
-        'notification-unread-count',
-      ],
+  const notificationUnreadQuery = useQuery({
+    queryKey: ["notification-unread-count"],
 
-      queryFn: getUnreadCount,
-    });
+    queryFn: getUnreadCount,
+  });
 
-  const messageUnreadQuery =
-    useQuery({
-      queryKey: [
-        'message-unread-count',
-      ],
+  const messageUnreadQuery = useQuery({
+    queryKey: ["message-unread-count"],
 
-      queryFn: getMessageUnreadCount,
-    });
+    queryFn: getMessageUnreadCount,
+  });
 
-  const profileImageUrl =
-    user?.profileImageUrl
-      ? user.profileImageUrl.startsWith(
-          'http'
-        )
-        ? user.profileImageUrl
-        : `${API_ORIGIN}${user.profileImageUrl}`
-      : null;
+  const postsQuery = useQuery({ queryKey: ["posts"] });
+
+  const profileImageUrl = user?.profileImageUrl
+    ? user.profileImageUrl.startsWith("http")
+      ? user.profileImageUrl
+      : `${API_ORIGIN}${user.profileImageUrl}`
+    : null;
 
   async function handleLogout() {
     try {
       if (refreshToken) {
-        await logoutRequest(
-          refreshToken
-        );
+        await logoutRequest(refreshToken);
       }
     } catch (error) {
-      console.error(
-        'Logout request failed:',
-        error
-      );
+      console.error("Logout request failed:", error);
     } finally {
       logout();
 
       setProfileAnchorEl(null);
 
-      navigate('/login', {
+      navigate("/login", {
         replace: true,
       });
     }
   }
 
-  function handleSearchSubmit(
-    event
-  ) {
+  function handleSearchSubmit(event) {
     event.preventDefault();
 
-    const value =
-      search.trim();
+    const value = search.trim();
 
-    if (!value) {
-      return;
-    }
 
-    navigate(
-      `/friends?search=${encodeURIComponent(
-        value
-      )}`
-    );
+    navigate(`/?search=${encodeURIComponent(value)}`);
+    queryClient.invalidateQueries({ queryKey: ["posts"] });
   }
 
   function isActive(path) {
-    if (path === '/') {
-      return (
-        location.pathname === '/'
-      );
+    if (path === "/") {
+      return location.pathname === "/";
     }
 
-    return location.pathname.startsWith(
-      path
-    );
+    return location.pathname.startsWith(path);
   }
 
-  function renderNavItem({
-    path,
-    title,
-    icon,
-    badge = 0,
-  }) {
-    const active =
-      isActive(path);
+  function renderNavItem({ path, title, icon, badge = 0 }) {
+    const active = isActive(path);
 
     return (
-      <Tooltip
-        title={title}
-        arrow
-      >
+      <Tooltip title={title} arrow>
         <IconButton
-          onClick={() =>
-            navigate(path)
-          }
+          onClick={() => navigate(path)}
           sx={{
-            position:
-              'relative',
+            position: "relative",
 
             width: {
               xs: 44,
@@ -190,41 +135,31 @@ export default function MainLayout() {
 
             borderRadius: 3,
 
-            color: active
-              ? 'primary.main'
-              : 'text.secondary',
+            color: active ? "primary.main" : "text.secondary",
 
-            bgcolor: active
-              ? 'rgba(37,99,235,.09)'
-              : 'transparent',
+            bgcolor: active ? "rgba(37,99,235,.09)" : "transparent",
 
-            transition:
-              'all .2s ease',
+            transition: "all .2s ease",
 
-            '&:hover': {
-              bgcolor:
-                'rgba(37,99,235,.08)',
+            "&:hover": {
+              bgcolor: "rgba(37,99,235,.08)",
 
-              color:
-                'primary.main',
+              color: "primary.main",
 
-              transform:
-                'translateY(-1px)',
+              transform: "translateY(-1px)",
             },
 
-            '&::after': active
+            "&::after": active
               ? {
                   content: '""',
 
-                  position:
-                    'absolute',
+                  position: "absolute",
 
                   bottom: -13,
 
-                  left: '50%',
+                  left: "50%",
 
-                  transform:
-                    'translateX(-50%)',
+                  transform: "translateX(-50%)",
 
                   width: 24,
 
@@ -232,17 +167,12 @@ export default function MainLayout() {
 
                   borderRadius: 999,
 
-                  bgcolor:
-                    'primary.main',
+                  bgcolor: "primary.main",
                 }
               : {},
           }}
         >
-          <Badge
-            badgeContent={badge}
-            color="error"
-            max={99}
-          >
+          <Badge badgeContent={badge} color="error" max={99}>
             {icon}
           </Badge>
         </IconButton>
@@ -253,37 +183,29 @@ export default function MainLayout() {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
+        minHeight: "100vh",
 
         background:
-          'linear-gradient(180deg,#f8fafc 0%,#f3f6fb 42%,#f8fafc 100%)',
+          "linear-gradient(180deg,#f8fafc 0%,#f3f6fb 42%,#f8fafc 100%)",
       }}
     >
       <AppBar
         position="sticky"
         elevation={0}
         sx={{
-          bgcolor:
-            'rgba(255,255,255,.86)',
+          bgcolor: "rgba(255,255,255,.86)",
 
-          color:
-            'text.primary',
+          color: "text.primary",
 
-          backdropFilter:
-            'blur(24px)',
+          backdropFilter: "blur(24px)",
 
-          WebkitBackdropFilter:
-            'blur(24px)',
+          WebkitBackdropFilter: "blur(24px)",
 
-          borderBottom:
-            '1px solid rgba(148,163,184,.14)',
+          borderBottom: "1px solid rgba(148,163,184,.14)",
 
-          boxShadow:
-            '0 6px 30px rgba(15,23,42,.035)',
+          boxShadow: "0 6px 30px rgba(15,23,42,.035)",
 
-          zIndex: (theme) =>
-            theme.zIndex.drawer +
-            10,
+          zIndex: (theme) => theme.zIndex.drawer + 10,
         }}
       >
         <Container maxWidth="xl">
@@ -294,18 +216,15 @@ export default function MainLayout() {
                 sm: 74,
               },
 
-              display: 'grid',
+              display: "grid",
 
               gridTemplateColumns: {
-                xs:
-                  'auto 1fr auto',
+                xs: "auto 1fr auto",
 
-                lg:
-                  '340px 1fr 340px',
+                lg: "340px 1fr 340px",
               },
 
-              alignItems:
-                'center',
+              alignItems: "center",
 
               gap: 2,
             }}
@@ -314,18 +233,15 @@ export default function MainLayout() {
 
             <Box
               sx={{
-                display: 'flex',
+                display: "flex",
 
-                alignItems:
-                  'center',
+                alignItems: "center",
 
                 gap: 1.3,
               }}
             >
               <Box
-                onClick={() =>
-                  navigate('/')
-                }
+                onClick={() => navigate("/")}
                 sx={{
                   width: 44,
                   height: 44,
@@ -334,26 +250,21 @@ export default function MainLayout() {
 
                   borderRadius: 3,
 
-                  display:
-                    'grid',
+                  display: "grid",
 
-                  placeItems:
-                    'center',
+                  placeItems: "center",
 
-                  cursor:
-                    'pointer',
+                  cursor: "pointer",
 
-                  color: 'white',
+                  color: "white",
 
                   fontSize: 20,
 
                   fontWeight: 950,
 
-                  background:
-                    'linear-gradient(135deg,#2563eb,#6366f1,#7c3aed)',
+                  background: "linear-gradient(135deg,#2563eb,#6366f1,#7c3aed)",
 
-                  boxShadow:
-                    '0 10px 28px rgba(37,99,235,.3)',
+                  boxShadow: "0 10px 28px rgba(37,99,235,.3)",
                 }}
               >
                 S
@@ -361,18 +272,15 @@ export default function MainLayout() {
 
               <Paper
                 component="form"
-                onSubmit={
-                  handleSearchSubmit
-                }
+                onSubmit={handleSearchSubmit}
                 elevation={0}
                 sx={{
                   display: {
-                    xs: 'none',
-                    md: 'flex',
+                    xs: "none",
+                    md: "flex",
                   },
 
-                  alignItems:
-                    'center',
+                  alignItems: "center",
 
                   px: 1.5,
 
@@ -382,16 +290,14 @@ export default function MainLayout() {
 
                   borderRadius: 999,
 
-                  bgcolor:
-                    '#f1f5f9',
+                  bgcolor: "#f1f5f9",
                 }}
               >
                 <SearchRoundedIcon
                   sx={{
                     mr: 1,
 
-                    color:
-                      'text.secondary',
+                    color: "text.secondary",
                   }}
                 />
 
@@ -399,14 +305,7 @@ export default function MainLayout() {
                   fullWidth
                   placeholder="Search SMM"
                   value={search}
-                  onChange={(
-                    event
-                  ) =>
-                    setSearch(
-                      event.target
-                        .value
-                    )
-                  }
+                  onChange={(event) => setSearch(event.target.value)}
                 />
               </Paper>
             </Box>
@@ -415,10 +314,9 @@ export default function MainLayout() {
 
             <Box
               sx={{
-                display: 'flex',
+                display: "flex",
 
-                justifyContent:
-                  'center',
+                justifyContent: "center",
 
                 gap: {
                   xs: 0,
@@ -428,56 +326,39 @@ export default function MainLayout() {
               }}
             >
               {renderNavItem({
-                path: '/',
+                path: "/",
 
-                title: 'Home',
+                title: "Home",
 
-                icon: (
-                  <HomeRoundedIcon />
-                ),
+                icon: <HomeRoundedIcon />,
               })}
 
               {renderNavItem({
-                path: '/friends',
+                path: "/friends",
 
-                title: 'Friends',
+                title: "Friends",
 
-                icon: (
-                  <PeopleAltRoundedIcon />
-                ),
+                icon: <PeopleAltRoundedIcon />,
               })}
 
               {renderNavItem({
-                path: '/messages',
+                path: "/messages",
 
-                title:
-                  'Messages',
+                title: "Messages",
 
-                badge:
-                  messageUnreadQuery
-                    .data
-                    ?.count ?? 0,
+                badge: messageUnreadQuery.data?.count ?? 0,
 
-                icon: (
-                  <ChatBubbleRoundedIcon />
-                ),
+                icon: <ChatBubbleRoundedIcon />,
               })}
 
               {renderNavItem({
-                path:
-                  '/notifications',
+                path: "/notifications",
 
-                title:
-                  'Notifications',
+                title: "Notifications",
 
-                badge:
-                  notificationUnreadQuery
-                    .data
-                    ?.count ?? 0,
+                badge: notificationUnreadQuery.data?.count ?? 0,
 
-                icon: (
-                  <NotificationsRoundedIcon />
-                ),
+                icon: <NotificationsRoundedIcon />,
               })}
             </Box>
 
@@ -485,26 +366,19 @@ export default function MainLayout() {
 
             <Box
               sx={{
-                display: 'flex',
+                display: "flex",
 
-                justifyContent:
-                  'flex-end',
+                justifyContent: "flex-end",
 
-                alignItems:
-                  'center',
+                alignItems: "center",
               }}
             >
               <Box
-                onClick={(event) =>
-                  setProfileAnchorEl(
-                    event.currentTarget
-                  )
-                }
+                onClick={(event) => setProfileAnchorEl(event.currentTarget)}
                 sx={{
-                  display: 'flex',
+                  display: "flex",
 
-                  alignItems:
-                    'center',
+                  alignItems: "center",
 
                   gap: 1,
 
@@ -513,83 +387,58 @@ export default function MainLayout() {
 
                   borderRadius: 999,
 
-                  cursor:
-                    'pointer',
+                  cursor: "pointer",
 
-                  '&:hover': {
-                    bgcolor:
-                      'rgba(15,23,42,.045)',
+                  "&:hover": {
+                    bgcolor: "rgba(15,23,42,.045)",
                   },
                 }}
               >
                 <Box
                   sx={{
                     display: {
-                      xs: 'none',
-                      lg: 'block',
+                      xs: "none",
+                      lg: "block",
                     },
 
-                    textAlign:
-                      'right',
+                    textAlign: "right",
                   }}
                 >
-                  <Typography
-                    variant="body2"
-                    fontWeight={850}
-                  >
-                    {
-                      user?.firstName
-                    }{' '}
-                    {
-                      user?.lastName
-                    }
+                  <Typography variant="body2" fontWeight={850}>
+                    {user?.firstName} {user?.lastName}
                   </Typography>
 
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                  >
+                  <Typography variant="caption" color="text.secondary">
                     @{user?.userName}
                   </Typography>
                 </Box>
 
                 <Avatar
-                  src={
-                    profileImageUrl ||
-                    undefined
-                  }
+                  src={profileImageUrl || undefined}
                   sx={{
                     width: 42,
                     height: 42,
 
                     fontWeight: 850,
 
-                    background:
-                      'linear-gradient(135deg,#2563eb,#7c3aed)',
+                    background: "linear-gradient(135deg,#2563eb,#7c3aed)",
                   }}
                 >
-                  {
-                    user?.firstName?.[0]
-                  }
+                  {user?.firstName?.[0]}
                 </Avatar>
 
                 <KeyboardArrowDownRoundedIcon
                   sx={{
                     display: {
-                      xs: 'none',
-                      sm: 'block',
+                      xs: "none",
+                      sm: "block",
                     },
 
-                    color:
-                      'text.secondary',
+                    color: "text.secondary",
 
-                    transform:
-                      profileMenuOpen
-                        ? 'rotate(180deg)'
-                        : 'rotate(0)',
+                    transform: profileMenuOpen ? "rotate(180deg)" : "rotate(0)",
 
-                    transition:
-                      '.2s',
+                    transition: ".2s",
                   }}
                 />
               </Box>
@@ -601,16 +450,14 @@ export default function MainLayout() {
       <Menu
         anchorEl={profileAnchorEl}
         open={profileMenuOpen}
-        onClose={() =>
-          setProfileAnchorEl(null)
-        }
+        onClose={() => setProfileAnchorEl(null)}
         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
+          vertical: "bottom",
+          horizontal: "right",
         }}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+          vertical: "top",
+          horizontal: "right",
         }}
         slotProps={{
           paper: {
@@ -621,11 +468,9 @@ export default function MainLayout() {
 
               borderRadius: 4,
 
-              border:
-                '1px solid rgba(148,163,184,.14)',
+              border: "1px solid rgba(148,163,184,.14)",
 
-              boxShadow:
-                '0 24px 70px rgba(15,23,42,.16)',
+              boxShadow: "0 24px 70px rgba(15,23,42,.16)",
             },
           },
         }}
@@ -634,27 +479,22 @@ export default function MainLayout() {
           sx={{
             p: 2,
 
-            display: 'flex',
+            display: "flex",
 
             gap: 1.2,
 
-            alignItems:
-              'center',
+            alignItems: "center",
           }}
         >
           <Avatar
-            src={
-              profileImageUrl ||
-              undefined
-            }
+            src={profileImageUrl || undefined}
             sx={{
               width: 48,
               height: 48,
 
               fontWeight: 850,
 
-              background:
-                'linear-gradient(135deg,#2563eb,#7c3aed)',
+              background: "linear-gradient(135deg,#2563eb,#7c3aed)",
             }}
           >
             {user?.firstName?.[0]}
@@ -665,23 +505,11 @@ export default function MainLayout() {
               minWidth: 0,
             }}
           >
-            <Typography
-              fontWeight={850}
-              noWrap
-            >
-              {
-                user?.firstName
-              }{' '}
-              {
-                user?.lastName
-              }
+            <Typography fontWeight={850} noWrap>
+              {user?.firstName} {user?.lastName}
             </Typography>
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              noWrap
-            >
+            <Typography variant="body2" color="text.secondary" noWrap>
               @{user?.userName}
             </Typography>
           </Box>
@@ -691,13 +519,9 @@ export default function MainLayout() {
 
         <MenuItem
           onClick={() => {
-            setProfileAnchorEl(
-              null
-            );
+            setProfileAnchorEl(null);
 
-            navigate(
-              `/profile/${user?.userName}`
-            );
+            navigate(`/profile/${user?.userName}`);
           }}
           sx={{
             gap: 1.2,
@@ -705,19 +529,14 @@ export default function MainLayout() {
           }}
         >
           <PersonRoundedIcon />
-
           My profile
         </MenuItem>
 
         <MenuItem
           onClick={() => {
-            setProfileAnchorEl(
-              null
-            );
+            setProfileAnchorEl(null);
 
-            navigate(
-              '/settings'
-            );
+            navigate("/settings");
           }}
           sx={{
             gap: 1.2,
@@ -725,45 +544,35 @@ export default function MainLayout() {
           }}
         >
           <SettingsRoundedIcon />
-
           Settings
         </MenuItem>
 
         <Divider />
 
         <MenuItem
-          onClick={
-            handleLogout
-          }
+          onClick={handleLogout}
           sx={{
             gap: 1.2,
 
             py: 1.3,
 
-            color:
-              'error.main',
+            color: "error.main",
 
-            '&:hover': {
-              bgcolor:
-                'rgba(239,68,68,.06)',
+            "&:hover": {
+              bgcolor: "rgba(239,68,68,.06)",
             },
           }}
         >
           <LogoutRoundedIcon />
 
-          <Typography
-            fontWeight={800}
-          >
-            Log out
-          </Typography>
+          <Typography fontWeight={800}>Log out</Typography>
         </MenuItem>
       </Menu>
 
       <Box
         component="main"
         sx={{
-          minHeight:
-            'calc(100vh - 74px)',
+          minHeight: "calc(100vh - 74px)",
         }}
       >
         <Outlet />

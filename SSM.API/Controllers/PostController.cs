@@ -209,8 +209,64 @@ public class PostsController : ControllerBase
         return Ok(post);
     }
 
-    [HttpGet]
-    public async Task<ActionResult> GetFeed(
+    //[HttpGet]
+    //public async Task<ActionResult> GetFeed(
+    //    [FromQuery] int page = 1,
+    //    [FromQuery] int pageSize = 10)
+    //{
+    //    var userId = GetCurrentUserId();
+
+    //    page = Math.Max(page, 1);
+    //    pageSize = Math.Clamp(pageSize, 1, 50);
+
+    //    var query = _dbContext.Posts
+    //        .AsNoTracking();
+
+    //    var totalCount = await query.CountAsync();
+
+    //    var posts = await query
+    //        .OrderByDescending(x => x.CreatedAt)
+    //        .Skip((page - 1) * pageSize)
+    //        .Take(pageSize)
+    //        .Select(x => new PostResponse
+    //        {
+    //            Id = x.Id,
+    //            Content = x.Content,
+    //            ImageUrl = x.ImageUrl,
+    //            VideoUrl = x.VideoUrl,
+    //            CreatedAt = x.CreatedAt,
+    //            UpdatedAt = x.UpdatedAt,
+
+    //            UserId = x.UserId,
+    //            UserName = x.User.UserName!,
+    //            FirstName = x.User.FirstName,
+    //            LastName = x.User.LastName,
+    //            ProfileImageUrl = x.User.ProfileImageUrl,
+
+    //            LikeCount = x.Likes.Count(),
+    //            CommentCount = x.Comments.Count(),
+
+    //            IsLikedByCurrentUser =
+    //                x.Likes.Any(l => l.UserId == userId)
+    //        })
+    //        .ToListAsync();
+
+    //    return Ok(new
+    //    {
+    //        items = posts,
+    //        page,
+    //        pageSize,
+    //        totalCount,
+    //        totalPages = (int)Math.Ceiling(
+    //            totalCount / (double)pageSize
+    //        )
+    //    });
+    //}
+
+
+    [HttpGet("search")]
+    public async Task<ActionResult> GetFeedBySearch(
+        [FromQuery] string? search,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
@@ -219,8 +275,20 @@ public class PostsController : ControllerBase
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 50);
 
-        var query = _dbContext.Posts
-            .AsNoTracking();
+        IQueryable<Post> query;
+        if (!String.IsNullOrEmpty(search))
+        {
+            query = _dbContext.Posts
+                .Where(p => p.Content!.Contains(search) ||
+                       p.Comments.Any(c => c.Content.Contains(search)) ||
+                       p.User!.UserName!.Contains(search))
+                .AsNoTracking();
+
+        }
+        else
+        {
+            query = _dbContext.Posts.AsNoTracking();
+        }
 
         var totalCount = await query.CountAsync();
 
