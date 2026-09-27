@@ -1,3 +1,6 @@
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using dotenv.net;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -12,9 +15,17 @@ using SMM.Infrastructure.Files;
 using SMM.Infrastructure.Notifications;
 using SMM.Infrastructure.Persistence;
 using SSM.API.Controllers.Helpers;
+using SSM.Infrastructure.Files;
 using SSM.Infrastructure.RealTime;
 using System.Text;
 using System.Text.Json.Serialization;
+
+
+#region cloudinary
+DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
+Cloudinary cloudinary = new Cloudinary(Environment.GetEnvironmentVariable("CLOUDINARY_URL"));
+cloudinary.Api.Secure = true;
+#endregion
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,15 +59,20 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     );
 });
 
+
+
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthHelper, AuthHelper>();
-builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<IFileStorageService, CloudinaryFileStorageService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddSignalR();
+builder.Services.AddSingleton(cloudinary);
+
 
 // =========================
 // Identity
 // =========================
+
 
 builder.Services
     .AddIdentityCore<AppUser>(options =>
@@ -176,7 +192,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("ReactClient", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins("http://localhost:5174")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -220,3 +236,4 @@ app.MapHub<NotificationHub>("/hubs/notifications");
 //app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();
+

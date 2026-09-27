@@ -28,9 +28,14 @@ export default function PostCard({ post }) {
   const [showComments, setShowComments] = useState(false);
   const queryClient = useQueryClient();
 
-  const imageUrl = post.imageUrl ? `${API_ORIGIN}${post.imageUrl}` : null;
+  // const imageUrl = post.imageUrl ? `${API_ORIGIN}${post.imageUrl}` : null;
 
-  const videoUrl = post.videoUrl ? `${API_ORIGIN}${post.videoUrl}` : null;
+  // const videoUrl = post.videoUrl ? `${API_ORIGIN}${post.videoUrl}` : null;
+
+  //For cloudinary:
+  const imageUrl = post.imageUrl ? `${post.imageUrl}` : null;
+
+  const videoUrl = post.videoUrl ? `${post.videoUrl}` : null;
 
   const profileImageUrl = post.profileImageUrl
     ? post.profileImageUrl.startsWith("http")
