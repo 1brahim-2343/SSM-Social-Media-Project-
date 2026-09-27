@@ -27,7 +27,8 @@ public class FriendshipConfiguration
         builder.HasIndex(x => new
         {
             x.User1Id,
-            x.User2Id
+            x.User2Id,
+            x.IsDeleted
         })
         .IsUnique();
 

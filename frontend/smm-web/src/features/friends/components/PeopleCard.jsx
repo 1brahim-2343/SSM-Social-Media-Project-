@@ -6,15 +6,16 @@ import {
   Paper,
   Stack,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 
-import PersonAddAlt1RoundedIcon from '@mui/icons-material/PersonAddAlt1Rounded';
-import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
-import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
-import PersonRemoveOutlinedIcon from '@mui/icons-material/PersonRemoveOutlined';
-import ChatBubbleRoundedIcon from '@mui/icons-material/ChatBubbleRounded';
+import PersonAddAlt1RoundedIcon from "@mui/icons-material/PersonAddAlt1Rounded";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
+import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
+import ChatBubbleRoundedIcon from "@mui/icons-material/ChatBubbleRounded";
+import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
 
-import { API_ORIGIN } from '../../../config';
+import { API_ORIGIN } from "../../../config";
 
 export default function PeopleCard({
   user,
@@ -24,58 +25,54 @@ export default function PeopleCard({
   onAccept,
   onReject,
   onMessage,
+  onUnfriend,
 
   loading,
 }) {
-  const avatar =
-    user.profileImageUrl
-      ? user.profileImageUrl.startsWith(
-          'http'
-        )
-        ? user.profileImageUrl
-        : `${API_ORIGIN}${user.profileImageUrl}`
-      : null;
+  const avatar = user.profileImageUrl
+    ? user.profileImageUrl.startsWith("http")
+      ? user.profileImageUrl
+      : `${API_ORIGIN}${user.profileImageUrl}`
+    : null;
 
   function renderAction() {
-    switch (
-      user.relationshipStatus
-    ) {
-      case 'Friends':
+    switch (user.relationshipStatus) {
+      case "Friends":
         return (
-          <Stack
-            direction="row"
-            spacing={1}
-          >
+          <Stack direction="row" spacing={1}>
             <Chip
-              icon={
-                <CheckRoundedIcon />
-              }
+              icon={<CheckRoundedIcon />}
               label="Friends"
               sx={{
                 fontWeight: 800,
 
-                bgcolor:
-                  'rgba(16,185,129,.1)',
+                bgcolor: "rgba(16,185,129,.1)",
 
-                color: '#059669',
+                color: "#059669",
               }}
             />
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<PersonRemoveRoundedIcon />}
+              onClick={() => onUnfriend(user.id)}
+              sx={{
+                borderRadius: 999,
+                textTransform: "none",
+                fontWeight: 800,
+              }}
+            >
+              Unfriend
+            </Button>
 
             <Button
               variant="contained"
-              startIcon={
-                <ChatBubbleRoundedIcon />
-              }
-              onClick={() =>
-                onMessage(
-                  user.id
-                )
-              }
+              startIcon={<ChatBubbleRoundedIcon />}
+              onClick={() => onMessage(user.id)}
               sx={{
                 borderRadius: 999,
 
-                textTransform:
-                  'none',
+                textTransform: "none",
 
                 fontWeight: 800,
               }}
@@ -85,24 +82,17 @@ export default function PeopleCard({
           </Stack>
         );
 
-      case 'OutgoingRequest':
+      case "OutgoingRequest":
         return (
           <Button
             variant="outlined"
-            startIcon={
-              <ScheduleRoundedIcon />
-            }
+            startIcon={<ScheduleRoundedIcon />}
             disabled={loading}
-            onClick={() =>
-              onCancel(
-                user.friendRequestId
-              )
-            }
+            onClick={() => onCancel(user.friendRequestId)}
             sx={{
               borderRadius: 999,
 
-              textTransform:
-                'none',
+              textTransform: "none",
 
               fontWeight: 800,
             }}
@@ -111,25 +101,17 @@ export default function PeopleCard({
           </Button>
         );
 
-      case 'IncomingRequest':
+      case "IncomingRequest":
         return (
-          <Stack
-            direction="row"
-            spacing={1}
-          >
+          <Stack direction="row" spacing={1}>
             <Button
               variant="contained"
               disabled={loading}
-              onClick={() =>
-                onAccept(
-                  user.friendRequestId
-                )
-              }
+              onClick={() => onAccept(user.friendRequestId)}
               sx={{
                 borderRadius: 999,
 
-                textTransform:
-                  'none',
+                textTransform: "none",
 
                 fontWeight: 800,
               }}
@@ -141,11 +123,7 @@ export default function PeopleCard({
               variant="outlined"
               color="inherit"
               disabled={loading}
-              onClick={() =>
-                onReject(
-                  user.friendRequestId
-                )
-              }
+              onClick={() => onReject(user.friendRequestId)}
               sx={{
                 minWidth: 44,
 
@@ -161,23 +139,17 @@ export default function PeopleCard({
         return (
           <Button
             variant="contained"
-            startIcon={
-              <PersonAddAlt1RoundedIcon />
-            }
+            startIcon={<PersonAddAlt1RoundedIcon />}
             disabled={loading}
-            onClick={() =>
-              onAdd(user.id)
-            }
+            onClick={() => onAdd(user.id)}
             sx={{
               borderRadius: 999,
 
-              textTransform:
-                'none',
+              textTransform: "none",
 
               fontWeight: 800,
 
-              background:
-                'linear-gradient(135deg,#2563eb,#6366f1)',
+              background: "linear-gradient(135deg,#2563eb,#6366f1)",
             }}
           >
             Add friend
@@ -194,43 +166,35 @@ export default function PeopleCard({
 
         borderRadius: 4,
 
-        border: '1px solid',
+        border: "1px solid",
 
-        borderColor:
-          'rgba(148,163,184,.16)',
+        borderColor: "rgba(148,163,184,.16)",
 
-        background:
-          'linear-gradient(145deg,#fff,#f8fafc)',
+        background: "linear-gradient(145deg,#fff,#f8fafc)",
 
-        boxShadow:
-          '0 16px 45px rgba(15,23,42,.06)',
+        boxShadow: "0 16px 45px rgba(15,23,42,.06)",
 
-        transition:
-          '.2s ease',
+        transition: ".2s ease",
 
-        '&:hover': {
-          transform:
-            'translateY(-2px)',
+        "&:hover": {
+          transform: "translateY(-2px)",
 
-          boxShadow:
-            '0 22px 55px rgba(15,23,42,.1)',
+          boxShadow: "0 22px 55px rgba(15,23,42,.1)",
         },
       }}
     >
       <Box
         sx={{
-          display: 'flex',
+          display: "flex",
 
-          alignItems:
-            'center',
+          alignItems: "center",
 
           gap: 1.5,
         }}
       >
         <Box
           sx={{
-            position:
-              'relative',
+            position: "relative",
           }}
         >
           <Avatar
@@ -241,8 +205,7 @@ export default function PeopleCard({
 
               fontWeight: 900,
 
-              background:
-                'linear-gradient(135deg,#2563eb,#7c3aed)',
+              background: "linear-gradient(135deg,#2563eb,#7c3aed)",
             }}
           >
             {user.firstName?.[0]}
@@ -251,8 +214,7 @@ export default function PeopleCard({
           {user.isOnline && (
             <Box
               sx={{
-                position:
-                  'absolute',
+                position: "absolute",
 
                 right: 0,
                 bottom: 1,
@@ -260,14 +222,11 @@ export default function PeopleCard({
                 width: 14,
                 height: 14,
 
-                borderRadius:
-                  '50%',
+                borderRadius: "50%",
 
-                bgcolor:
-                  '#22c55e',
+                bgcolor: "#22c55e",
 
-                border:
-                  '3px solid white',
+                border: "3px solid white",
               }}
             />
           )}
@@ -280,19 +239,11 @@ export default function PeopleCard({
             flex: 1,
           }}
         >
-          <Typography
-            fontWeight={850}
-            noWrap
-          >
-            {user.firstName}{' '}
-            {user.lastName}
+          <Typography fontWeight={850} noWrap>
+            {user.firstName} {user.lastName}
           </Typography>
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            noWrap
-          >
+          <Typography variant="body2" color="text.secondary" noWrap>
             @{user.userName}
           </Typography>
         </Box>

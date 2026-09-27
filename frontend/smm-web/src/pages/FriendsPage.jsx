@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 import {
   Box,
@@ -10,20 +10,13 @@ import {
   Tabs,
   TextField,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 
-import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import {
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom';
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import {
   acceptFriendRequest,
@@ -31,137 +24,99 @@ import {
   getFriends,
   getIncomingRequests,
   rejectFriendRequest,
+  removeFriend,
   searchUsers,
   sendFriendRequest,
-} from '../features/friends/api/friendsApi';
+} from "../features/friends/api/friendsApi";
 
-import {
-  openConversation,
-} from '../features/messages/api/messagesApi';
+import { openConversation } from "../features/messages/api/messagesApi";
 
-import PeopleCard from '../features/friends/components/PeopleCard';
+import PeopleCard from "../features/friends/components/PeopleCard";
 
-import FriendRequestCard from '../features/friends/components/FriendRequestCard';
+import FriendRequestCard from "../features/friends/components/FriendRequestCard";
 
 export default function FriendsPage() {
-  const queryClient =
-    useQueryClient();
+  const queryClient = useQueryClient();
 
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
-  const [searchParams] =
-    useSearchParams();
+  const [searchParams] = useSearchParams();
 
-  const initialSearch =
-    searchParams.get(
-      'search'
-    ) ?? '';
+  const initialSearch = searchParams.get("search") ?? "";
 
-  const [tab, setTab] =
-    useState(0);
+  const [tab, setTab] = useState(0);
 
-  const [search, setSearch] =
-    useState(initialSearch);
+  const [search, setSearch] = useState(initialSearch);
 
-  const peopleQuery =
-    useQuery({
-      queryKey: [
-        'people',
-        search,
-      ],
+  const peopleQuery = useQuery({
+    queryKey: ["people", search],
 
-      queryFn: () =>
-        searchUsers(search),
-    });
+    queryFn: () => searchUsers(search),
+  });
 
-  const requestsQuery =
-    useQuery({
-      queryKey: [
-        'friend-requests',
-      ],
+  const requestsQuery = useQuery({
+    queryKey: ["friend-requests"],
 
-      queryFn:
-        getIncomingRequests,
-    });
+    queryFn: getIncomingRequests,
+  });
 
-  const friendsQuery =
-    useQuery({
-      queryKey: [
-        'friends',
-      ],
+  const friendsQuery = useQuery({
+    queryKey: ["friends"],
 
-      queryFn:
-        getFriends,
-    });
+    queryFn: getFriends,
+  });
 
   function invalidateFriendData() {
     queryClient.invalidateQueries({
-      queryKey: ['people'],
+      queryKey: ["people"],
     });
 
     queryClient.invalidateQueries({
-      queryKey: [
-        'friend-requests',
-      ],
+      queryKey: ["friend-requests"],
     });
 
     queryClient.invalidateQueries({
-      queryKey: [
-        'friends',
-      ],
+      queryKey: ["friends"],
     });
   }
 
-  const sendMutation =
-    useMutation({
-      mutationFn:
-        sendFriendRequest,
+  const sendMutation = useMutation({
+    mutationFn: sendFriendRequest,
 
-      onSuccess:
-        invalidateFriendData,
-    });
+    onSuccess: invalidateFriendData,
+  });
 
-  const cancelMutation =
-    useMutation({
-      mutationFn:
-        cancelFriendRequest,
+  const cancelMutation = useMutation({
+    mutationFn: cancelFriendRequest,
 
-      onSuccess:
-        invalidateFriendData,
-    });
+    onSuccess: invalidateFriendData,
+  });
 
-  const acceptMutation =
-    useMutation({
-      mutationFn:
-        acceptFriendRequest,
+  const acceptMutation = useMutation({
+    mutationFn: acceptFriendRequest,
 
-      onSuccess:
-        invalidateFriendData,
-    });
+    onSuccess: invalidateFriendData,
+  });
 
-  const rejectMutation =
-    useMutation({
-      mutationFn:
-        rejectFriendRequest,
+  const rejectMutation = useMutation({
+    mutationFn: rejectFriendRequest,
 
-      onSuccess:
-        invalidateFriendData,
-    });
+    onSuccess: invalidateFriendData,
+  });
 
-  const openChatMutation =
-    useMutation({
-      mutationFn:
-        openConversation,
+  const openChatMutation = useMutation({
+    mutationFn: openConversation,
 
-      onSuccess: (
-        result
-      ) => {
-        navigate(
-          `/messages?conversation=${result.conversationId}`
-        );
-      },
-    });
+    onSuccess: (result) => {
+      navigate(`/messages?conversation=${result.conversationId}`);
+    },
+  });
+
+  const unfriendMutation = useMutation({
+    mutationFn: removeFriend,
+
+    onSuccess: invalidateFriendData,
+  });
 
   const loading =
     sendMutation.isPending ||
@@ -173,24 +128,18 @@ export default function FriendsPage() {
   return (
     <Box
       sx={{
-        minHeight:
-          'calc(100vh - 74px)',
+        minHeight: "calc(100vh - 74px)",
 
         py: 4,
       }}
     >
       <Container maxWidth="lg">
         <Box mb={3}>
-          <Typography
-            variant="h4"
-            fontWeight={950}
-          >
+          <Typography variant="h4" fontWeight={950}>
             Friends
           </Typography>
 
-          <Typography
-            color="text.secondary"
-          >
+          <Typography color="text.secondary">
             Discover people and manage your connections.
           </Typography>
         </Box>
@@ -204,30 +153,17 @@ export default function FriendsPage() {
 
             borderRadius: 4,
 
-            border: '1px solid',
+            border: "1px solid",
 
-            borderColor:
-              'rgba(148,163,184,.16)',
+            borderColor: "rgba(148,163,184,.16)",
           }}
         >
-          <Tabs
-            value={tab}
-            onChange={(
-              _,
-              value
-            ) =>
-              setTab(value)
-            }
-          >
+          <Tabs value={tab} onChange={(_, value) => setTab(value)}>
             <Tab label="Discover" />
 
-            <Tab
-              label={`Requests (${requestsQuery.data?.length ?? 0})`}
-            />
+            <Tab label={`Requests (${requestsQuery.data?.length ?? 0})`} />
 
-            <Tab
-              label={`Friends (${friendsQuery.data?.length ?? 0})`}
-            />
+            <Tab label={`Friends (${friendsQuery.data?.length ?? 0})`} />
           </Tabs>
         </Paper>
 
@@ -236,26 +172,16 @@ export default function FriendsPage() {
             <TextField
               fullWidth
               value={search}
-              onChange={(
-                event
-              ) =>
-                setSearch(
-                  event.target
-                    .value
-                )
-              }
+              onChange={(event) => setSearch(event.target.value)}
               placeholder="Search people..."
               sx={{
                 mb: 3,
 
-                '& .MuiOutlinedInput-root':
-                  {
-                    borderRadius:
-                      999,
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 999,
 
-                    bgcolor:
-                      'white',
-                  },
+                  bgcolor: "white",
+                },
               }}
               slotProps={{
                 input: {
@@ -270,125 +196,63 @@ export default function FriendsPage() {
 
             <Box
               sx={{
-                display: 'grid',
+                display: "grid",
 
                 gridTemplateColumns: {
-                  xs: '1fr',
+                  xs: "1fr",
 
-                  md:
-                    'repeat(2,1fr)',
+                  md: "repeat(2,1fr)",
                 },
 
                 gap: 2,
               }}
             >
-              {peopleQuery.data?.map(
-                (user) => (
-                  <PeopleCard
-                    key={user.id}
-                    user={user}
-                    loading={loading}
-
-                    onAdd={(id) =>
-                      sendMutation.mutate(
-                        id
-                      )
-                    }
-
-                    onCancel={(
-                      requestId
-                    ) =>
-                      cancelMutation.mutate(
-                        requestId
-                      )
-                    }
-
-                    onAccept={(
-                      requestId
-                    ) =>
-                      acceptMutation.mutate(
-                        requestId
-                      )
-                    }
-
-                    onReject={(
-                      requestId
-                    ) =>
-                      rejectMutation.mutate(
-                        requestId
-                      )
-                    }
-
-                    onMessage={(
-                      userId
-                    ) =>
-                      openChatMutation.mutate(
-                        userId
-                      )
-                    }
-                  />
-                )
-              )}
+              {peopleQuery.data?.map((user) => (
+                <PeopleCard
+                  key={user.id}
+                  user={user}
+                  loading={loading}
+                  onAdd={(id) => sendMutation.mutate(id)}
+                  onCancel={(requestId) => cancelMutation.mutate(requestId)}
+                  onAccept={(requestId) => acceptMutation.mutate(requestId)}
+                  onReject={(requestId) => rejectMutation.mutate(requestId)}
+                  onMessage={(userId) => openChatMutation.mutate(userId)}
+                  onUnfriend={(friendId) => unfriendMutation.mutate(friendId)}
+                />
+              ))}
             </Box>
           </>
         )}
 
         {tab === 1 && (
           <Stack spacing={2}>
-            {requestsQuery.data?.map(
-              (request) => (
-                <FriendRequestCard
-                  key={request.id}
-                  request={request}
-                  loading={loading}
-
-                  onAccept={(
-                    id
-                  ) =>
-                    acceptMutation.mutate(
-                      id
-                    )
-                  }
-
-                  onReject={(
-                    id
-                  ) =>
-                    rejectMutation.mutate(
-                      id
-                    )
-                  }
-                />
-              )
-            )}
+            {requestsQuery.data?.map((request) => (
+              <FriendRequestCard
+                key={request.id}
+                request={request}
+                loading={loading}
+                onAccept={(id) => acceptMutation.mutate(id)}
+                onReject={(id) => rejectMutation.mutate(id)}
+              />
+            ))}
           </Stack>
         )}
 
         {tab === 2 && (
           <Stack spacing={2}>
-            {friendsQuery.data?.map(
-              (friend) => (
-                <PeopleCard
-                  key={friend.id}
+            {friendsQuery.data?.map((friend) => (
+              <PeopleCard
+                key={friend.id}
+                user={{
+                  ...friend,
 
-                  user={{
-                    ...friend,
-
-                    relationshipStatus:
-                      'Friends',
-                  }}
-
-                  loading={loading}
-
-                  onMessage={(
-                    userId
-                  ) =>
-                    openChatMutation.mutate(
-                      userId
-                    )
-                  }
-                />
-              )
-            )}
+                  relationshipStatus: "Friends",
+                }}
+                loading={loading}
+                onMessage={(userId) => openChatMutation.mutate(userId)}
+                onUnfriend={(friendId) => unfriendMutation.mutate(friendId)}
+              />
+            ))}
           </Stack>
         )}
       </Container>

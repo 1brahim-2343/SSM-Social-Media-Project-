@@ -668,6 +668,7 @@ public class FriendsController : ControllerBase
         friendship.UpdatedAt =
             DateTime.UtcNow;
 
+        _dbContext.Friendships.Remove(friendship);
         await _dbContext
             .SaveChangesAsync(
                 cancellationToken
