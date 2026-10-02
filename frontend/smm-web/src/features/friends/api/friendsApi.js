@@ -66,3 +66,9 @@ export async function searchUsers(search = '') {
 
   return response.data;
 }
+
+export async function getOnlineUsers(){
+  const response = await api.get("/users/online");
+
+  return response.data;
+}

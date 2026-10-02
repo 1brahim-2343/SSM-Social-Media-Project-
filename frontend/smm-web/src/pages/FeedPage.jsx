@@ -27,6 +27,8 @@ import CreatePostCard from "../components/CreatePostCard";
 import PostCard from "../components/PostCard";
 import NotificationsMenu from "../features/notifications/components/NotificationsMenu";
 import { useSearchParams } from "react-router-dom";
+import { getOnlineUsers } from "../features/friends/api/friendsApi";
+import PeopleCard from "../features/friends/components/PeopleCard";
 
 export default function FeedPage() {
   const user = useAuthStore((state) => state.user);
@@ -44,6 +46,12 @@ export default function FeedPage() {
         page: 1,
         pageSize: 20,
       }),
+  });
+
+  const onlineUsersQuery = useQuery({
+    queryKey: ["onlineUsers"],
+
+    queryFn: () => getOnlineUsers(),
   });
 
   return (
@@ -181,9 +189,57 @@ export default function FeedPage() {
                 Contacts
               </Typography>
 
-              <Typography color="text.secondary" variant="body2">
-                Online friends will appear here.
-              </Typography>
+              <Box color="text.secondary" component="div">
+                {onlineUsersQuery.data?.map((user) => (
+                  <Box
+                    key={user.id}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.5,
+                      p: 1,
+                      borderRadius: 2,
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                      "&:hover": { backgroundColor: "action.hover" },
+                    }}
+                  >
+                    <Box sx={{ position: "relative" }}>
+                      <Avatar
+                        src={user.profileImageUrl}
+                        sx={{ width: 36, height: 36 }}
+                      >
+                        {user.firstName?.[0]}
+                      </Avatar>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          bottom: 0,
+                          right: 0,
+                          width: 10,
+                          height: 10,
+                          borderRadius: "50%",
+                          backgroundColor: "#22c55e",
+                          border: "2px solid",
+                          borderColor: "background.paper",
+                        }}
+                      />
+                    </Box>
+                    <Box>
+                      <Typography
+                        variant="body2"
+                        fontWeight={600}
+                        color="text.primary"
+                      >
+                        {`${user.firstName} ${user.lastName}`}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {`@${user.userName}`}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
             </Paper>
           </Box>
         </Box>

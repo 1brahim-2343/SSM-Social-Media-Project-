@@ -14,6 +14,7 @@ using SMM.Infrastructure.Authentication;
 using SMM.Infrastructure.Files;
 using SMM.Infrastructure.Notifications;
 using SMM.Infrastructure.Persistence;
+using SMM.Infrastructure.Realtime;
 using SSM.API.Controllers.Helpers;
 using SSM.Infrastructure.Files;
 using SSM.Infrastructure.RealTime;
@@ -233,7 +234,7 @@ app.MapControllers();
 
 // SignalR hub əlavə edəndə:
 app.MapHub<NotificationHub>("/hubs/notifications");
-//app.MapHub<ChatHub>("/hubs/chat");
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();
 

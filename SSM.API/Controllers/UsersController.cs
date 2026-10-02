@@ -182,4 +182,29 @@ public class UsersController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpGet("online")]
+    public async Task<IActionResult> OnlineUsers(CancellationToken cancellationToken)
+    {
+        var currentUserId = Guid.Parse(User.FindFirstValue(
+            ClaimTypes.NameIdentifier
+        )!);
+
+        var onlineUsers = await _dbContext.Users
+            .AsNoTracking()
+            .Where(u => u.IsOnline == true && u.Id != currentUserId)
+            .Select(u => new UserSearchResponse
+            {
+                Id = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                UserName = u.UserName!,
+                ProfileImageUrl = u.ProfileImageUrl,
+                IsOnline = u.IsOnline
+            })
+            .ToListAsync(cancellationToken);
+
+        return Ok(onlineUsers);
+    }
+
 }
